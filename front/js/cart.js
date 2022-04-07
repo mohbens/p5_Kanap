@@ -1,6 +1,5 @@
-let panier = getCard();
-
-function getCard() {
+displayPanier();
+function getCart() {
   let cart = localStorage.getItem("produit");
   if (cart == null) {
     return [];
@@ -8,15 +7,22 @@ function getCard() {
     return JSON.parse(cart);
   }
 }
+var total =0;
 
-panier.forEach((element) => {
-  getInfosProduits(element);
-});
+function displayPanier() {
+  document.getElementById("cart__items").innerHTML = "";
+  let panier = getCart();
+
+  panier.forEach((element) => {
+    getInfosProduits(element);
+    
+  });
+}
 
 function getInfosProduits(element) {
   let id = element.idProduit;
 
-  let httpRequest = new XMLHttpRequest();
+  var httpRequest = new XMLHttpRequest();
   const url = "http://localhost:3000/api/products/" + id;
 
   httpRequest.onreadystatechange = handleResponse;
@@ -38,15 +44,25 @@ function getInfosProduits(element) {
           description: item.description,
         };
         displayOneItem(element, infosProduits);
+        total += getPrice(element, infosProduits);
+
+        const supprimer = Array.from(
+          document.getElementsByClassName("deleteItem")
+
+        );
+        console.log(supprimer);
+        displayTotalPrice();
       }
     }
   }
 }
 
-function displayOneItem(item, info) {
-  console.log(info);
-  console.log(item);
+function getPrice(item, info) {
+  var prix = info.price * item.nmbrArticle;
+  return prix;
+}
 
+function displayOneItem(item, info) {
   var oneItem =
     '<article class="cart__item" data-id="' +
     item.idProduit +
@@ -63,10 +79,45 @@ function displayOneItem(item, info) {
     "</p>      <p>" +
     info.price +
     '€</p>    </div>    <div class="cart__item__content__settings">      <div class="cart__item__content__settings__quantity">     <p>Qté : ' +
-    
-    '</p>        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="'+item.nmbrArticle +'">      </div><div class="cart__item__content__settings__delete"><p class="deleteItem">Supprimer</p></div></div></div></article>';
+    '</p>        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="' +
+    item.nmbrArticle +
+    '">      </div><div class="cart__item__content__settings__delete"><p class="deleteItem" onclick="removeFromcart(\'' +
+    item.idProduit +
+    "','" +
+    item.colorOption +
+    "')\">Supprimer</p></div></div></div></article>";
 
   var content = document.getElementById("cart__items").innerHTML;
   content = content + oneItem;
   document.getElementById("cart__items").innerHTML = content;
+
+ // var content = document.getElementById("cart__items").innerHTML;
+ 
+ 
+}
+
+function displayTotalPrice(){
+  document.getElementById("totalPrice").innerHTML = total;
+};
+
+function removeFromcart(id, couleur) {
+  panier = getCart();
+  console.log("ready");
+  for (i = 0; i < panier.length; i++) {
+    console.log(i);
+
+    if (panier[i].idProduit === id && panier[i].colorOption === couleur) {
+      panier.splice(i, 1);
+      console.log("deleted");
+      break;
+    }
+  }
+
+  localStorage.setItem("produit", JSON.stringify(panier));
+  displayPanier();
+  total=0;
+}
+
+function commander(infoClient) {
+  sendHttpRequest("POST");
 }
