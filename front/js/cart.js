@@ -7,7 +7,7 @@ function getCart() {
     return JSON.parse(cart);
   }
 }
-var total =0;
+var total = 0;
 
 function displayPanier() {
   document.getElementById("cart__items").innerHTML = "";
@@ -15,7 +15,6 @@ function displayPanier() {
 
   panier.forEach((element) => {
     getInfosProduits(element);
-    
   });
 }
 
@@ -48,7 +47,6 @@ function getInfosProduits(element) {
 
         const supprimer = Array.from(
           document.getElementsByClassName("deleteItem")
-
         );
         console.log(supprimer);
         displayTotalPrice();
@@ -91,14 +89,12 @@ function displayOneItem(item, info) {
   content = content + oneItem;
   document.getElementById("cart__items").innerHTML = content;
 
- // var content = document.getElementById("cart__items").innerHTML;
- 
- 
+  // var content = document.getElementById("cart__items").innerHTML;
 }
 
-function displayTotalPrice(){
+function displayTotalPrice() {
   document.getElementById("totalPrice").innerHTML = total;
-};
+}
 
 function removeFromcart(id, couleur) {
   panier = getCart();
@@ -115,9 +111,61 @@ function removeFromcart(id, couleur) {
 
   localStorage.setItem("produit", JSON.stringify(panier));
   displayPanier();
-  total=0;
+  total = 0;
 }
 
-function commander(infoClient) {
-  sendHttpRequest("POST");
+/******************************************commander  */
+
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const address = document.getElementById("address");
+const city = document.getElementById("city");
+const email = document.getElementById("email");
+
+infoTab = [ firstName, lastName, address, city, email];
+
+infoTab.forEach((element) => {
+  element.addEventListener("keyup", (e) => {
+    console.log(e.target.value);
+    const tab = wichRegex(element);
+    const regex = tab[0];
+    const errorMessage = tab[1];
+    const wichOne=getError(element.name);
+    console.log('wichOne');
+    console.log(element.name);
+    checkInput(element, regex, errorMessage ,wichOne);
+  });
+});
+
+function getError(element) {
+if(element === "firstName")return document.getElementById("firstNameErrorMsg");
+if(element === "lastName")return document.getElementById("lastNameErrorMsg");
+if(element === "address")return document.getElementById("addressErrorMsg");
+if(element === "city")return document.getElementById("cityErrorMsg");
+if(element === "email")return document.getElementById("emailErrorMsg");
+
+
+}
+
+function wichRegex(element) {
+  const noNumbers = new RegExp("^[a-z]*$");
+  const emailReg = new RegExp(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/);
+  const errorEmail = "entrez un format email correct";
+  const errorname = "ne mettez pas de numeros";
+
+  if (element === email) {
+    return [emailReg, errorEmail];
+  } else {
+    return [noNumbers, errorname];
+  }
+}
+
+function checkInput(element, regex, errorMessage,wichOne) {
+  console.log(element);
+
+  if (!regex.test(element.value)) {
+    wichOne.innerText = errorMessage;
+  }else{
+    wichOne.innerText = "";
+  }
 }
