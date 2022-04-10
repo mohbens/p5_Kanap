@@ -1,4 +1,5 @@
 displayPanier();
+
 function getCart() {
   let cart = localStorage.getItem("produit");
   if (cart == null) {
@@ -27,13 +28,11 @@ function getInfosProduits(element) {
   httpRequest.onreadystatechange = handleResponse;
   httpRequest.open("GET", url);
   httpRequest.send();
-  console.log("1");
 
   function handleResponse() {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
       if (httpRequest.status === 200) {
         const item = JSON.parse(httpRequest.responseText);
-        console.log("2");
 
         let infosProduits = {
           name: item.name,
@@ -48,7 +47,7 @@ function getInfosProduits(element) {
         const supprimer = Array.from(
           document.getElementsByClassName("deleteItem")
         );
-        console.log(supprimer);
+
         displayTotalPrice();
       }
     }
@@ -98,13 +97,11 @@ function displayTotalPrice() {
 
 function removeFromcart(id, couleur) {
   panier = getCart();
-  console.log("ready");
-  for (i = 0; i < panier.length; i++) {
-    console.log(i);
 
+  for (i = 0; i < panier.length; i++) {
     if (panier[i].idProduit === id && panier[i].colorOption === couleur) {
       panier.splice(i, 1);
-      console.log("deleted");
+
       break;
     }
   }
@@ -115,6 +112,22 @@ function removeFromcart(id, couleur) {
 }
 
 /******************************************commander  */
+// validateur = [
+//   {
+//     idElement :"firstName",
+//     idErrorElement :"firstNameErrorMsg",
+//     regex :"^[a-z]*$",
+//     messageError :"ne mettez pas de numeros",
+
+//   }, {
+//     idElement :"lastName",
+//     idErrorElement :"lastNameErrorMsg",
+//     regex :"^[a-z]*$",
+//     messageError :"ne mettez pas de numeros",
+
+//   }
+
+// ]
 
 const firstName = document.getElementById("firstName");
 const lastName = document.getElementById("lastName");
@@ -122,34 +135,29 @@ const address = document.getElementById("address");
 const city = document.getElementById("city");
 const email = document.getElementById("email");
 
-infoTab = [ firstName, lastName, address, city, email];
+infoTab = [firstName, lastName, address, city, email];
 
 infoTab.forEach((element) => {
   element.addEventListener("keyup", (e) => {
-    console.log(e.target.value);
     const tab = wichRegex(element);
     const regex = tab[0];
     const errorMessage = tab[1];
-    const wichOne=getError(element.name);
-    console.log('wichOne');
-    console.log(element.name);
-    checkInput(element, regex, errorMessage ,wichOne);
+    const wichOne = getError(element.name);
+    console.log("wichOne");
+
+    checkInput(element, regex, errorMessage, wichOne);
   });
 });
 
 function getError(element) {
-if(element === "firstName")return document.getElementById("firstNameErrorMsg");
-if(element === "lastName")return document.getElementById("lastNameErrorMsg");
-if(element === "address")return document.getElementById("addressErrorMsg");
-if(element === "city")return document.getElementById("cityErrorMsg");
-if(element === "email")return document.getElementById("emailErrorMsg");
-
-
+  return document.getElementById(element + "ErrorMsg");
 }
 
 function wichRegex(element) {
-  const noNumbers = new RegExp("^[a-z]*$");
-  const emailReg = new RegExp(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/);
+  const noNumbers = new RegExp("^[a-zA-Z ]*$");
+  const emailReg = new RegExp(
+    /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
+  );
   const errorEmail = "entrez un format email correct";
   const errorname = "ne mettez pas de numeros";
 
@@ -160,12 +168,88 @@ function wichRegex(element) {
   }
 }
 
-function checkInput(element, regex, errorMessage,wichOne) {
-  console.log(element);
-
+function checkInput(element, regex, errorMessage, wichOne) {
   if (!regex.test(element.value)) {
     wichOne.innerText = errorMessage;
-  }else{
+  } else {
     wichOne.innerText = "";
   }
+}
+
+/*********bouton commander */
+
+document.getElementById("order").addEventListener("click", (event) => {
+  event.preventDefault();
+  let ValidInfo = true;
+
+  // infoTab.forEach((element) => {
+  //   if (ValidInfo === true) {
+  //     if (!regex.test(element.value)) {
+  //       ValidInfo = false;
+  //     }
+  //   }
+  // });
+
+  if (ValidInfo === true) {
+    infoClient = order();
+    
+  }
+
+});
+
+
+async function order() {
+  const infoClient = {
+    contact: {
+      firstName: firstName.value,
+      lastName: lastName.value,
+      address: address.value,
+      city: city.value,
+      email: email.value,
+    },
+    products: getFormatedCart(),
+  };
+
+  const response = await fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(infoClient),
+  }).then(function (res) {
+    console.log(res);
+
+    if (res.ok) {
+      return res;
+    }
+  });
+
+  console.log(response);
+  const content = await response.json();
+  console.log(content);
+ window.location.href = "file:///C:/Users/Track.B/Desktop/P5-Dev-Web-Kanap-master/front/html/confirmation.html?orderId="+content.orderId;
+}
+
+function getFormatedCart() {
+  a = getCart();
+  // let formated = {};
+  let formated = [];
+
+  a.forEach((element) => {
+    let c = element.idProduit;
+    // formated [c]={colorOption: element.colorOption,
+    //   nmbrArticle: element.nmbrArticle}
+    // console.log(c);
+    // let b = {
+    //   [c]: {
+    //     colorOption: element.colorOption,
+    //     nmbrArticle: element.nmbrArticle,
+    //   },
+    // };
+
+    formated.push(c);
+  });
+  console.log(formated);
+  return formated;
 }

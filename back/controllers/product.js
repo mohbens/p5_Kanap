@@ -57,7 +57,9 @@ exports.orderProducts = (req, res, next) => {
     return res.status(400).send(new Error('Bad request!'));
   }
   let queries = [];
+  console.log(req.body.products);
   for (let productId of req.body.products) {
+    console.log(productId);
     const queryPromise = new Promise((resolve, reject) => {
       Product.findById(productId).then(
         (product) => {
@@ -86,6 +88,7 @@ exports.orderProducts = (req, res, next) => {
     }
   ).catch(
     (error) => {
+      console.log(error);
       return res.status(500).json(new Error(error));
     }
   );
