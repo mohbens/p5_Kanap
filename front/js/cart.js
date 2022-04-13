@@ -8,9 +8,11 @@ function getCart() {
     return JSON.parse(cart);
   }
 }
-var total = 0;
+
+var prices = {};
 
 function displayPanier() {
+  total = 0;
   document.getElementById("cart__items").innerHTML = "";
   let panier = getCart();
 
@@ -34,24 +36,58 @@ function getInfosProduits(element) {
       if (httpRequest.status === 200) {
         const item = JSON.parse(httpRequest.responseText);
 
-        let infosProduits = {
+        infosProduits = {
           name: item.name,
           price: item.price,
           image: item.imageUrl,
           alt: item.altTxt,
           description: item.description,
         };
-        displayOneItem(element, infosProduits);
-        total += getPrice(element, infosProduits);
 
-        const supprimer = Array.from(
-          document.getElementsByClassName("deleteItem")
-        );
+        displayOneItem(element, infosProduits);
+        prices[id] = item.price;
 
         displayTotalPrice();
       }
     }
   }
+}
+
+/******************   quantity listner**************** */
+
+function quantityChanged() {
+  document
+    .querySelector('input[name="itemQuantity"]')
+    .addEventListener("change", () => {
+      let quantityInput = document.querySelector('input[name="itemQuantity"]');
+      let produitlocalStorage = JSON.parse(localStorage.getItem("produit"));
+      produitlocalStorage.forEach((element) => {
+        // if (
+        //   element.idProduit === infoProduit.idProduit &&
+        //   element.colorOption === infoProduit.colorOption
+        // ) {
+        //   localStorage.setItem("produit", JSON.stringify(produitlocalStorage));
+        //   element.nmbrArticle =
+        //     parseInt(infoProduit.nmbrArticle) + parseInt(element.nmbrArticle);
+        // }
+
+        console.log(quantityInput.value);
+      });
+    });
+}
+
+/************************************************* */
+
+function displayTotalPrice() {
+  var total = 0;
+  var panier = getCart();
+  panier.forEach((element) => {
+    if (prices[element.idProduit]) {
+      total = total + element.nmbrArticle * prices[element.idProduit];
+    }
+  });
+
+  document.getElementById("totalPrice").innerHTML = total;
 }
 
 function getPrice(item, info) {
@@ -69,14 +105,20 @@ function displayOneItem(item, info) {
     info.image +
     '" alt="' +
     info.alt +
-    '">  </div>  <div class="cart__item__content"><div class="cart__item__content__description"><h2>' +
+    '">  </div>  <div class="cart__item__content"><div class="cart__item__conte/nt__description"><h2>' +
     info.name +
     "</h2>    <p>" +
     item.colorOption +
     "</p>      <p>" +
     info.price +
     '€</p>    </div>    <div class="cart__item__content__settings">      <div class="cart__item__content__settings__quantity">     <p>Qté : ' +
-    '</p>        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="' +
+    '</p>        <input type="number" class="itemQuantity" name="itemQuantity" onchange="changeQuantity(\'' +
+    item.idProduit +
+    "'," +
+    "this" +
+    ",'" +
+    item.colorOption +
+    '\')" min="1" max="100" value="' +
     item.nmbrArticle +
     '">      </div><div class="cart__item__content__settings__delete"><p class="deleteItem" onclick="removeFromcart(\'' +
     item.idProduit +
@@ -90,13 +132,27 @@ function displayOneItem(item, info) {
 
   // var content = document.getElementById("cart__items").innerHTML;
 }
+function changeQuantity(id, element, couleur) {
+  console.log(element.value);
+  console.log(id);
+  console.log(couleur);
 
-function displayTotalPrice() {
-  document.getElementById("totalPrice").innerHTML = total;
+  let panier = getCart();
+
+  for (i = 0; i < panier.length; i++) {
+    if (panier[i].idProduit === id && panier[i].colorOption === couleur) {
+      panier[i].nmbrArticle = element.value;
+
+      break;
+    }
+  }
+
+  localStorage.setItem("produit", JSON.stringify(panier));
+  displayTotalPrice();
 }
 
 function removeFromcart(id, couleur) {
-  panier = getCart();
+  let panier = getCart();
 
   for (i = 0; i < panier.length; i++) {
     if (panier[i].idProduit === id && panier[i].colorOption === couleur) {
@@ -108,7 +164,6 @@ function removeFromcart(id, couleur) {
 
   localStorage.setItem("produit", JSON.stringify(panier));
   displayPanier();
-  total = 0;
 }
 
 /******************************************commander  */
@@ -192,11 +247,8 @@ document.getElementById("order").addEventListener("click", (event) => {
 
   if (ValidInfo === true) {
     infoClient = order();
-    
   }
-
 });
-
 
 async function order() {
   const infoClient = {
@@ -228,7 +280,9 @@ async function order() {
   console.log(response);
   const content = await response.json();
   console.log(content);
- window.location.href = "file:///C:/Users/Track.B/Desktop/P5-Dev-Web-Kanap-master/front/html/confirmation.html?orderId="+content.orderId;
+  window.location.href =
+    "file:///C:/Users/Track.B/Desktop/P5-Dev-Web-Kanap-master/front/html/confirmation.html?orderId=" +
+    content.orderId;
 }
 
 function getFormatedCart() {
