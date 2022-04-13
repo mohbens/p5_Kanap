@@ -209,16 +209,23 @@ function getError(element) {
 }
 
 function wichRegex(element) {
+  const cityReg = new RegExp("^[a-zA-Z 0-9s,'-]*$");
   const noNumbers = new RegExp("^[a-zA-Z ]*$");
   const emailReg = new RegExp(
     /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
   );
-  const errorEmail = "entrez un format email correct";
-  const errorname = "ne mettez pas de numeros";
 
+  const errorEmail = "entrez un format email correct";
+  const errorname = "ne mettez pas de numeros ni de caractére special";
+  const errorCity = "pas de caractére spécial";
+
+  if (element === city || element === address) {
+    return [cityReg, errorCity];
+  }
   if (element === email) {
     return [emailReg, errorEmail];
-  } else {
+  }
+  if (element === firstName || element === lastName) {
     return [noNumbers, errorname];
   }
 }
@@ -237,18 +244,14 @@ document.getElementById("order").addEventListener("click", (event) => {
   event.preventDefault();
   let ValidInfo = true;
 
-  // infoTab.forEach((element) => {
-  //   if (ValidInfo === true) {
-  //     if (!regex.test(element.value)) {
-  //       ValidInfo = false;
-  //     }
-  //   }
-  // });
-
   if (ValidInfo === true) {
     infoClient = order();
   }
+  localStorage.clear();
 });
+
+
+
 
 async function order() {
   const infoClient = {
