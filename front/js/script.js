@@ -1,6 +1,7 @@
 getAndDisplayAllProducts();
 
 function getAndDisplayAllProducts() {
+  //apporte et affiche tout les produit depuis l'API
   httpRequest = new XMLHttpRequest();
   const url = "http://localhost:3000/api/products";
 
@@ -22,12 +23,14 @@ function handleResponse() {
 }
 
 function displayProducts(products) {
+  //la boucle pour afficher le produits
   products.forEach((element) => {
     displayOneProduct(element);
   });
 }
 
 function displayOneProduct(product) {
+  //affiche un seul produit dans le DOM
   let element =
     '<a href="./product.html?id=' +
     product._id +

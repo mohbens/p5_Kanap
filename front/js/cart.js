@@ -1,6 +1,7 @@
 displayPanier();
 
 function getCart() {
+  //retourne le panier depuis le localStorage
   let cart = localStorage.getItem("produit");
   if (cart == null) {
     return [];
@@ -12,6 +13,7 @@ function getCart() {
 var prices = {};
 
 function displayPanier() {
+  // affiche le panier
   total = 0;
   document.getElementById("cart__items").innerHTML = "";
   let panier = getCart();
@@ -22,6 +24,7 @@ function displayPanier() {
 }
 
 function getInfosProduits(element) {
+  // stoque les informations de chaque produit et affiche dans le dome
   let id = element.idProduit;
 
   var httpRequest = new XMLHttpRequest();
@@ -53,32 +56,8 @@ function getInfosProduits(element) {
   }
 }
 
-/******************   quantity listner**************** */
-
-function quantityChanged() {
-  document
-    .querySelector('input[name="itemQuantity"]')
-    .addEventListener("change", () => {
-      let quantityInput = document.querySelector('input[name="itemQuantity"]');
-      let produitlocalStorage = JSON.parse(localStorage.getItem("produit"));
-      produitlocalStorage.forEach((element) => {
-        // if (
-        //   element.idProduit === infoProduit.idProduit &&
-        //   element.colorOption === infoProduit.colorOption
-        // ) {
-        //   localStorage.setItem("produit", JSON.stringify(produitlocalStorage));
-        //   element.nmbrArticle =
-        //     parseInt(infoProduit.nmbrArticle) + parseInt(element.nmbrArticle);
-        // }
-
-        console.log(quantityInput.value);
-      });
-    });
-}
-
-/************************************************* */
-
 function displayTotalPrice() {
+  //calcule et affiche le total
   var total = 0;
   var panier = getCart();
   panier.forEach((element) => {
@@ -86,17 +65,12 @@ function displayTotalPrice() {
       total = total + element.nmbrArticle * prices[element.idProduit];
     }
   });
-
   document.getElementById("totalPrice").innerHTML = total;
 }
 
-function getPrice(item, info) {
-  var prix = info.price * item.nmbrArticle;
-  return prix;
-}
-
 function displayOneItem(item, info) {
-  var oneItem =
+  // affiche un article dans le DOM
+  let oneItem =
     '<article class="cart__item" data-id="' +
     item.idProduit +
     '" data-color="' +
@@ -133,25 +107,22 @@ function displayOneItem(item, info) {
   // var content = document.getElementById("cart__items").innerHTML;
 }
 function changeQuantity(id, element, couleur) {
-  console.log(element.value);
-  console.log(id);
+  //ecoute le changement de la quantité des articles et change dans le localStorage
+
   console.log(couleur);
-
   let panier = getCart();
-
   for (i = 0; i < panier.length; i++) {
     if (panier[i].idProduit === id && panier[i].colorOption === couleur) {
       panier[i].nmbrArticle = element.value;
-
       break;
     }
   }
-
   localStorage.setItem("produit", JSON.stringify(panier));
   displayTotalPrice();
 }
 
 function removeFromcart(id, couleur) {
+  //supprime l'articke du le DOM et du localStorage
   let panier = getCart();
 
   for (i = 0; i < panier.length; i++) {
@@ -165,24 +136,6 @@ function removeFromcart(id, couleur) {
   localStorage.setItem("produit", JSON.stringify(panier));
   displayPanier();
 }
-
-/******************************************commander  */
-// validateur = [
-//   {
-//     idElement :"firstName",
-//     idErrorElement :"firstNameErrorMsg",
-//     regex :"^[a-z]*$",
-//     messageError :"ne mettez pas de numeros",
-
-//   }, {
-//     idElement :"lastName",
-//     idErrorElement :"lastNameErrorMsg",
-//     regex :"^[a-z]*$",
-//     messageError :"ne mettez pas de numeros",
-
-//   }
-
-// ]
 
 const firstName = document.getElementById("firstName");
 const lastName = document.getElementById("lastName");
@@ -205,6 +158,7 @@ infoTab.forEach((element) => {
 });
 
 function getError(element) {
+  //retourne l'erreur par raport au champ de l'imput
   return document.getElementById(element + "ErrorMsg");
 }
 
@@ -231,6 +185,7 @@ function wichRegex(element) {
 }
 
 function checkInput(element, regex, errorMessage, wichOne) {
+  //affiche l'erreur
   if (!regex.test(element.value)) {
     wichOne.innerText = errorMessage;
   } else {
@@ -241,19 +196,23 @@ function checkInput(element, regex, errorMessage, wichOne) {
 /*********bouton commander */
 
 document.getElementById("order").addEventListener("click", (event) => {
-  event.preventDefault();
-  let ValidInfo = true;
+  panier = getCart();
+  if (panier.length === 0) {
+    //verifie si le panier et vide sinon fait la commande
+    console.log("panier vide");
+  } else {
+    event.preventDefault();
+    let ValidInfo = true;
 
-  if (ValidInfo === true) {
-    infoClient = order();
+    if (ValidInfo === true) {
+      infoClient = order();
+    }
+    localStorage.clear();
   }
-  localStorage.clear();
 });
 
-
-
-
 async function order() {
+  //fait le POST et retourne le orderId et envoi vers la page de confirmation
   const infoClient = {
     contact: {
       firstName: firstName.value,
@@ -283,28 +242,17 @@ async function order() {
   console.log(response);
   const content = await response.json();
   console.log(content);
-  window.location.href =
-    "file:///C:/Users/Track.B/Desktop/P5-Dev-Web-Kanap-master/front/html/confirmation.html?orderId=" +
-    content.orderId;
+  window.location.href = "./confirmation.html?orderId=" + content.orderId;
 }
 
 function getFormatedCart() {
+  //retourne le tableau des id des produit selectionnés
   a = getCart();
-  // let formated = {};
+
   let formated = [];
 
   a.forEach((element) => {
     let c = element.idProduit;
-    // formated [c]={colorOption: element.colorOption,
-    //   nmbrArticle: element.nmbrArticle}
-    // console.log(c);
-    // let b = {
-    //   [c]: {
-    //     colorOption: element.colorOption,
-    //     nmbrArticle: element.nmbrArticle,
-    //   },
-    // };
-
     formated.push(c);
   });
   console.log(formated);

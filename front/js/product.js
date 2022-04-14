@@ -1,6 +1,7 @@
 getAndDisplayAllProducts();
 
 function getProductId() {
+  //retourne l'Id du produit depuis l'Url
   const idDuProduit = window.location.search; //url
   const urlSearchParams = new URLSearchParams(idDuProduit);
   console.log(urlSearchParams);
@@ -8,6 +9,7 @@ function getProductId() {
   return leId;
 }
 function getAndDisplayAllProducts() {
+  //affiche le produit en sélectionnant  son id  depuis l'url
   const leId = getProductId();
   console.log(leId);
 
@@ -26,11 +28,12 @@ function handleResponse() {
       displayProducts(products);
     } else {
       document.getElementsByClassName("item")[0].innerHTML =
-        '<div style="font-size: xxx-large;text-transform: uppercase;font-weight: bold;">ce produit est indiponible </div>';
+        '<div style="font-size: xxx-large;text-transform: uppercase;font-weight: bold;">ce produit est indisponible </div>';
     }
   }
 }
 function displayProducts(product) {
+  //affiche le produit
   console.log(product);
 
   document.getElementById("title").innerHTML = product.name;
@@ -83,6 +86,7 @@ ajouterPanier.addEventListener("click", (event) => {
 
 /*******************localStorage***************/
 function pushLocalStorage(infoProduit) {
+  //remplit le localStorage avec le produit selectionné
   let produitlocalStorage = JSON.parse(localStorage.getItem("produit"));
   var exists = false;
   if (produitlocalStorage) {
@@ -109,5 +113,3 @@ function pushLocalStorage(infoProduit) {
   localStorage.setItem("produit", JSON.stringify(produitlocalStorage));
   console.log(produitlocalStorage);
 }
-
-
