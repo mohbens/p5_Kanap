@@ -17,7 +17,7 @@ function handleResponse() {
 
       displayProducts(products);
     } else {
-      console.log("Il y a eu un problème avec la requête.");
+     alert("Il y a eu un problème avec la requête.");
     }
   }
 }
@@ -32,17 +32,17 @@ function displayProducts(products) {
 function displayOneProduct(product) {
   //affiche un seul produit dans le DOM
   let element =
-    '<a href="./product.html?id=' +
-    product._id +
-    ' "> <article><img src="' +
-    product.imageUrl +
-    '" alt="' +
-    product.altTxt +
-    '"> <h3 class="productName">' +
-    product.name +
-    '</h3><p class="productDescription">' +
-    product.description +
-    "</p>  </article></a> ";
+`<a href="./product.html?id=${product._id} ">
+  <article>
+    <img src="${product.imageUrl}" alt="${product.altTxt}">
+      <h3 class="productName">
+       ${product.name}
+      </h3>
+      <p class="productDescription">
+        ${product.description}
+      </p>
+  </article>
+</a> `;
 
   let content = document.getElementById("items").innerHTML;
   content = content + element;
